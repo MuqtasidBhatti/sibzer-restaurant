@@ -19,24 +19,28 @@ import uploadRoutes from './routes/upload.routes.js'
 import dashboardRoutes from './routes/dashboard.routes.js'
 import messageRoutes from './routes/message.routes.js'
 
-
 dotenv.config()
-
-connectDB()
 
 const app = express()
 
+// connect db
+await connectDB()
+
 // middleware
-app.use(cors({
-    origin: process.env.CLIENT_URL === '*' ? '*' : process.env.CLIENT_URL,
-    credentials: process.env.CLIENT_URL !== '*'
-}))
+app.use(
+    cors({
+        origin: process.env.CLIENT_URL || '*',
+        credentials: process.env.CLIENT_URL !== '*'
+    })
+)
+
 app.use(helmet())
 app.use(morgan('dev'))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// api routes
+// routes
 app.use('/api/auth', authRoutes)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/menu', menuRoutes)
@@ -48,24 +52,31 @@ app.use('/api/upload', uploadRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/messages', messageRoutes)
 
-// health check route
+// health route
 app.get('/', (req, res) => {
-    res.json({ message: 'Restaurant API is running' })
+    res.status(200).json({
+        success: true,
+        message: 'Restaurant API is running'
+    })
 })
 
-// 404 handler — for any route that does not exist
+// 404
 app.use((req, res) => {
-    res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` })
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`
+    })
 })
 
-// global error handler — always last
+// error handler
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 5000
-
+// local development only
 if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5000
+
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`)
+        console.log(`Server running on ${PORT}`)
     })
 }
 
