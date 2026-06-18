@@ -45,7 +45,7 @@ function MenuRow({ item, onEdit, onDelete, onToggle }) {
             <div className="flex gap-1 shrink-0">
                 <button
                     onClick={() => onToggle(item._id)}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                    className="p-2.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
                     title="Toggle availability"
                 >
                     {item.isAvailable
@@ -174,8 +174,8 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                                     key={tag}
                                     onClick={() => toggleTag(tag)}
                                     className={`px-3 py-1.5 rounded-lg text-xs capitalize border transition-colors ${form.dietaryTags.includes(tag)
-                                            ? 'border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]'
-                                            : 'border-white/10 text-white/40 hover:text-white'
+                                        ? 'border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]'
+                                        : 'border-white/10 text-white/40 hover:text-white'
                                         }`}
                                 >
                                     {tag}
@@ -329,12 +329,12 @@ export default function ManageMenu() {
                     </h1>
                     <p className="text-white/40 text-sm mt-1">{items.length} total</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search items..."
-                        className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-48"
+                        className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-full sm:w-8"
                     />
                     <button
                         onClick={openNew}

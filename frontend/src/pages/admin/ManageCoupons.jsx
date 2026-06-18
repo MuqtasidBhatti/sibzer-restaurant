@@ -35,7 +35,7 @@ function CouponRow({ coupon, onDelete }) {
                 </div>
             </div>
 
-            <div className="flex items-center gap-6 text-xs text-white/40">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
                 <div>
                     <p className="text-white/20 mb-0.5">Uses</p>
                     <p className="text-white/60">{coupon.usedCount} / {coupon.maxUses || '∞'}</p>
@@ -56,7 +56,7 @@ function CouponRow({ coupon, onDelete }) {
 
             <button
                 onClick={() => onDelete(coupon._id)}
-                className="p-1.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors"
+                className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors"
             >
                 <Trash2 size={14} />
             </button>

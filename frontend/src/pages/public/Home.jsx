@@ -14,10 +14,8 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
 });
 
-// ── Featured Card ─────────────────────────────────────────────
 const FeaturedCard = ({ item }) => {
   const { addItem } = useCartStore();
-
   const handleAdd = () => {
     addItem({
       _id: item._id,
@@ -34,7 +32,6 @@ const FeaturedCard = ({ item }) => {
         hover:border-[#E85D04]/25 hover:shadow-[0_8px_40px_rgba(232,93,4,0.07)]
         transition-all duration-500 w-full flex flex-col h-full"
     >
-      {/* Image */}
       <div className="relative overflow-hidden bg-[#1A1A1A] shrink-0" style={{ height: "220px" }}>
         {item.images?.[0] ? (
           <img
@@ -46,8 +43,6 @@ const FeaturedCard = ({ item }) => {
           <div className="w-full h-full flex items-center justify-center text-5xl">🍽️</div>
         )}
         <div className="absolute inset-0 bg-linear-to-t from-[#111111]/70 via-transparent to-transparent" />
-
-        {/* Chef's Pick badge */}
         {item.isFeatured && (
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1
             bg-[#E85D04] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
@@ -56,8 +51,6 @@ const FeaturedCard = ({ item }) => {
           </div>
         )}
       </div>
-
-      {/* Body */}
       <div className="p-5 flex flex-col flex-1">
         <h3
           className="text-base font-semibold text-white mb-1 group-hover:text-[#E85D04] transition-colors"
@@ -71,14 +64,11 @@ const FeaturedCard = ({ item }) => {
           </p>
         )}
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-sm font-bold text-[#E85D04]">
-            {formatPrice(item.price)}
-          </span>
+          <span className="text-sm font-bold text-[#E85D04]">{formatPrice(item.price)}</span>
           <button
             onClick={handleAdd}
             className="px-4 py-1.5 rounded-full bg-[#E85D04] hover:bg-[#C44D02]
-              text-white text-xs font-medium tracking-wider uppercase
-              transition-colors duration-200"
+              text-white text-xs font-medium tracking-wider uppercase transition-colors duration-200"
           >
             Add
           </button>
@@ -88,7 +78,6 @@ const FeaturedCard = ({ item }) => {
   );
 };
 
-// ── Skeleton Card ─────────────────────────────────────────────
 const SkeletonCard = () => (
   <div className="bg-[#111111] rounded-2xl overflow-hidden border border-[#1E1E1E] animate-pulse">
     <div className="bg-[#1A1A1A]" style={{ height: "220px" }} />
@@ -100,7 +89,6 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ── Main Home ─────────────────────────────────────────────────
 const Home = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
@@ -145,6 +133,16 @@ const Home = () => {
         ref={heroRef}
         className="relative min-h-screen grid lg:grid-cols-2 overflow-hidden"
       >
+        {/* Mobile background image */}
+        <div className="absolute inset-0 lg:hidden">
+          <img
+            src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=85"
+            alt=""
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-linear-to-b from-[#0A0A0A]/60 via-[#0A0A0A]/40 to-[#0A0A0A]" />
+        </div>
+
         {/* Left — text */}
         <motion.div
           style={{ opacity: heroOpacity }}
@@ -223,7 +221,7 @@ const Home = () => {
           </motion.div>
         </motion.div>
 
-        {/* Right — food image */}
+        {/* Right — food image (desktop only) */}
         <motion.div style={{ y: heroY }} className="relative hidden lg:block">
           <img
             src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=85"
@@ -251,12 +249,6 @@ const Home = () => {
             </div>
           </motion.div>
         </motion.div>
-
-        {/* Mobile glow */}
-        <div
-          className="absolute inset-0 lg:hidden pointer-events-none"
-          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 30%, rgba(232,93,4,0.07) 0%, transparent 70%)` }}
-        />
       </section>
 
       {/* PERKS */}

@@ -95,13 +95,13 @@ export default function ManageUsers() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-3 gap-2 mb-8">
                 {[
                     { label: 'Total', value: users.length, icon: Users },
                     { label: 'Admins', value: adminCount, icon: Shield },
                     { label: 'Customers', value: userCount, icon: User },
                 ].map(({ label, value, icon: Icon }) => (
-                    <div key={label} className="bg-white/2 border border-white/10 rounded-xl p-4 flex items-center gap-3">
+                    <div key={label} className="bg-white/2 border border-white/10 rounded-xl p-3 flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-[#E85D04]/10 flex items-center justify-center shrink-0">
                             <Icon size={15} className="text-[#E85D04]" />
                         </div>
