@@ -37,8 +37,7 @@ function MenuRow({ item, onEdit, onDelete, onToggle }) {
 
             <p className="text-white/70 text-sm font-medium shrink-0">{formatPrice(item.price)}</p>
 
-            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${item.isAvailable ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'
-                }`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${item.isAvailable ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
                 {item.isAvailable ? 'Available' : 'Hidden'}
             </span>
 
@@ -52,10 +51,10 @@ function MenuRow({ item, onEdit, onDelete, onToggle }) {
                         ? <ToggleRight size={16} className="text-green-400" />
                         : <ToggleLeft size={16} />}
                 </button>
-                <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                <button onClick={() => onEdit(item)} className="p-2.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
                     <Pencil size={14} />
                 </button>
-                <button onClick={() => onDelete(item._id)} className="p-1.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
+                <button onClick={() => onDelete(item._id)} className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
                     <Trash2 size={14} />
                 </button>
             </div>
@@ -89,7 +88,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-5">
-                    {/* Name */}
                     <div>
                         <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Name</label>
                         <input
@@ -100,7 +98,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         />
                     </div>
 
-                    {/* Description */}
                     <div>
                         <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Description</label>
                         <textarea
@@ -112,7 +109,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         />
                     </div>
 
-                    {/* Price + Prep */}
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Price (Rs.)</label>
@@ -136,7 +132,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         </div>
                     </div>
 
-                    {/* Category */}
                     <div>
                         <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Category</label>
                         <select
@@ -151,7 +146,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         </select>
                     </div>
 
-                    {/* Image URL */}
                     <div>
                         <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Image URL</label>
                         <input
@@ -165,7 +159,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         )}
                     </div>
 
-                    {/* Dietary Tags */}
                     <div>
                         <label className="block text-xs text-white/40 mb-2 uppercase tracking-widest">Dietary Tags</label>
                         <div className="flex flex-wrap gap-2">
@@ -184,7 +177,6 @@ function SlidePanel({ open, onClose, form, setForm, onSave, saving, editing, cat
                         </div>
                     </div>
 
-                    {/* Toggles */}
                     {[
                         { key: 'isAvailable', label: 'Available', sub: 'Visible on the menu' },
                         { key: 'isFeatured', label: 'Featured', sub: 'Shown on the homepage' },
@@ -235,9 +227,7 @@ export default function ManageMenu() {
                 menuService.getAllItemsAdmin(),
                 menuService.getCategories(),
             ])
-            // Handle both array and { menuItems: [] } shapes
             setItems(Array.isArray(menuRes) ? menuRes : menuRes.menuItems ?? [])
-            // Handle both array and { categories: [] } shapes
             setCategories(Array.isArray(catRes) ? catRes : catRes.categories ?? [])
         } catch {
             toast.error('Failed to load menu.')
@@ -322,7 +312,7 @@ export default function ManageMenu() {
 
     return (
         <div className="p-6 lg:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
                         Menu Items
@@ -334,7 +324,7 @@ export default function ManageMenu() {
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search items..."
-                        className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-full sm:w-8"
+                        className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-full sm:w-48"
                     />
                     <button
                         onClick={openNew}

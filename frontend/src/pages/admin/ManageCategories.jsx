@@ -7,30 +7,37 @@ const EMPTY_FORM = { name: '', image: '', sortOrder: 0, isActive: true }
 
 function CategoryRow({ cat, onEdit, onDelete }) {
   return (
-    <div className="flex items-center gap-4 p-4 border border-white/10 rounded-xl bg-white/2 hover:bg-white/4 transition-colors">
-      <GripVertical size={16} className="text-white/20 shrink-0" />
-      {cat.image ? (
-        <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-lg object-cover" />
-      ) : (
-        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white/20 text-xs">
-          No img
+    <div className="flex flex-col gap-3 p-4 border border-white/10 rounded-xl bg-white/2 hover:bg-white/4 transition-colors">
+      {/* Top: image + name + actions */}
+      <div className="flex items-center gap-3">
+        <GripVertical size={16} className="text-white/20 shrink-0" />
+        {cat.image ? (
+          <img src={cat.image} alt={cat.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+        ) : (
+          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white/20 text-xs shrink-0">
+            No img
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-sm font-medium truncate">{cat.name}</p>
+          <p className="text-white/30 text-xs">/{cat.slug}</p>
         </div>
-      )}
-      <div className="flex-1">
-        <p className="text-white text-sm font-medium">{cat.name}</p>
-        <p className="text-white/30 text-xs">/{cat.slug}</p>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={() => onEdit(cat)} className="p-2.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+            <Pencil size={14} />
+          </button>
+          <button onClick={() => onDelete(cat._id)} className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
-      <span className="text-white/30 text-xs">Sort: {cat.sortOrder}</span>
-      <span className={`text-xs px-2 py-0.5 rounded-full ${cat.isActive ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
-        {cat.isActive ? 'Active' : 'Hidden'}
-      </span>
-      <div className="flex gap-2">
-        <button onClick={() => onEdit(cat)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors">
-          <Pencil size={14} />
-        </button>
-        <button onClick={() => onDelete(cat._id)} className="p-1.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
-          <Trash2 size={14} />
-        </button>
+
+      {/* Bottom: sort + status */}
+      <div className="flex items-center gap-3 pl-9">
+        <span className="text-white/30 text-xs">Sort: {cat.sortOrder}</span>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${cat.isActive ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
+          {cat.isActive ? 'Active' : 'Hidden'}
+        </span>
       </div>
     </div>
   )
@@ -181,7 +188,7 @@ export default function ManageCategories() {
 
   return (
     <div className="p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
             Categories
@@ -190,7 +197,7 @@ export default function ManageCategories() {
         </div>
         <button
           onClick={openNew}
-          className="flex items-center gap-2 bg-[#E85D04] hover:bg-[#d44f00] text-white text-sm px-4 py-2.5 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-[#E85D04] hover:bg-[#d44f00] text-white text-sm px-4 py-2.5 rounded-lg transition-colors w-full sm:w-auto justify-center"
         >
           <Plus size={15} /> New Category
         </button>
@@ -198,7 +205,7 @@ export default function ManageCategories() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
         </div>
       ) : categories.length === 0 ? (
         <p className="text-white/30 text-sm text-center py-20">No categories yet.</p>

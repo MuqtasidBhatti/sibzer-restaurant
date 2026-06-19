@@ -18,27 +18,19 @@ function RoleBadge({ role }) {
 function UserRow({ user }) {
     return (
         <div className="flex flex-wrap items-center gap-4 p-4 border border-white/10 rounded-xl bg-white/2 hover:bg-white/4 transition-colors">
-            {/* Avatar */}
             <div className="w-10 h-10 rounded-full bg-[#E85D04]/10 flex items-center justify-center text-[#E85D04] font-semibold text-sm shrink-0">
                 {user.name?.charAt(0).toUpperCase() || '?'}
             </div>
-
-            {/* Name + email */}
             <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-medium truncate">{user.name}</p>
                 <p className="text-white/30 text-xs truncate">{user.email}</p>
             </div>
-
-            {/* Phone */}
             <p className="text-white/40 text-xs hidden md:block">
                 {user.phone || <span className="text-white/20">No phone</span>}
             </p>
-
-            {/* Joined */}
             <p className="text-white/30 text-xs hidden lg:block shrink-0">
                 Joined {formatDate(user.createdAt)}
             </p>
-
             <RoleBadge role={user.role} />
         </div>
     )
@@ -71,8 +63,7 @@ export default function ManageUsers() {
 
     return (
         <div className="p-6 lg:p-8">
-            {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
                         Users
@@ -81,20 +72,17 @@ export default function ManageUsers() {
                         {users.length} total &mdash; {adminCount} admin, {userCount} customer
                     </p>
                 </div>
-
-                {/* Search */}
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search name or email..."
-                        className="bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-60"
+                        className="bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors w-full sm:w-60"
                     />
                 </div>
             </div>
 
-            {/* Stat cards */}
             <div className="grid grid-cols-3 gap-2 mb-8">
                 {[
                     { label: 'Total', value: users.length, icon: Users },
@@ -113,7 +101,6 @@ export default function ManageUsers() {
                 ))}
             </div>
 
-            {/* Role filter */}
             <div className="flex gap-2 mb-5">
                 {['all', 'user', 'admin'].map(r => (
                     <button
@@ -129,7 +116,6 @@ export default function ManageUsers() {
                 ))}
             </div>
 
-            {/* List */}
             {loading ? (
                 <div className="space-y-3">
                     {[1, 2, 3, 4].map(i => (

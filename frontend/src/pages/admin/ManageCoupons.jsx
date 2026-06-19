@@ -19,23 +19,33 @@ function CouponRow({ coupon, onDelete }) {
     const expired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date()
 
     return (
-        <div className="flex flex-wrap items-center gap-4 p-4 border border-white/10 rounded-xl bg-white/2">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="w-9 h-9 rounded-lg bg-[#E85D04]/10 flex items-center justify-center shrink-0">
-                    <Tag size={15} className="text-[#E85D04]" />
+        <div className="flex flex-col gap-3 p-4 border border-white/10 rounded-xl bg-white/2">
+            {/* Top row: icon + code + delete */}
+            <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-lg bg-[#E85D04]/10 flex items-center justify-center shrink-0">
+                        <Tag size={15} className="text-[#E85D04]" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-white font-mono font-semibold text-sm">{coupon.code}</p>
+                        <p className="text-white/30 text-xs truncate">
+                            {coupon.discountType === 'percentage'
+                                ? `${coupon.discountValue}% off`
+                                : `${formatPrice(coupon.discountValue)} off`}
+                            {coupon.minOrderAmount > 0 && ` · Min ${formatPrice(coupon.minOrderAmount)}`}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-white font-mono font-semibold text-sm">{coupon.code}</p>
-                    <p className="text-white/30 text-xs">
-                        {coupon.discountType === 'percentage'
-                            ? `${coupon.discountValue}% off`
-                            : `${formatPrice(coupon.discountValue)} off`}
-                        {coupon.minOrderAmount > 0 && ` · Min ${formatPrice(coupon.minOrderAmount)}`}
-                    </p>
-                </div>
+                <button
+                    onClick={() => onDelete(coupon._id)}
+                    className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors shrink-0"
+                >
+                    <Trash2 size={14} />
+                </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
+            {/* Bottom row: uses + expires + status */}
+            <div className="flex items-center gap-4 text-xs pl-12">
                 <div>
                     <p className="text-white/20 mb-0.5">Uses</p>
                     <p className="text-white/60">{coupon.usedCount} / {coupon.maxUses || '∞'}</p>
@@ -53,17 +63,9 @@ function CouponRow({ coupon, onDelete }) {
                     {!coupon.isActive || expired ? 'Inactive' : 'Active'}
                 </span>
             </div>
-
-            <button
-                onClick={() => onDelete(coupon._id)}
-                className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors"
-            >
-                <Trash2 size={14} />
-            </button>
         </div>
     )
 }
-
 function SlidePanel({ open, onClose, form, setForm, onSave, saving }) {
     if (!open) return null
 
@@ -242,7 +244,7 @@ export default function ManageCoupons() {
 
     return (
         <div className="p-6 lg:p-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
                         Coupons
@@ -251,7 +253,7 @@ export default function ManageCoupons() {
                 </div>
                 <button
                     onClick={() => { setForm(EMPTY_FORM); setPanelOpen(true) }}
-                    className="flex items-center gap-2 bg-[#E85D04] hover:bg-[#d44f00] text-white text-sm px-4 py-2.5 rounded-lg transition-colors"
+                    className="flex items-center gap-2 bg-[#E85D04] hover:bg-[#d44f00] text-white text-sm px-4 py-2.5 rounded-lg transition-colors w-full sm:w-auto justify-center"
                 >
                     <Plus size={15} /> New Coupon
                 </button>
