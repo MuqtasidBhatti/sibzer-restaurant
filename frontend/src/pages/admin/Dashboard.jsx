@@ -5,7 +5,7 @@ import {
     XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
 import api from '../../services/api'
-import  formatPrice  from '../../utils/formatPrice'
+import formatPrice from '../../utils/formatPrice'
 
 function StatCard({ label, value, icon: Icon, sub }) {
     return (
@@ -110,8 +110,23 @@ export default function Dashboard() {
                                 </linearGradient>
                             </defs>
                             <CartesianGrid stroke="#ffffff08" />
-                            <XAxis dataKey="date" tick={{ fill: '#ffffff40', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fill: '#ffffff40', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                            <XAxis
+                                dataKey="date"
+                                tick={{ fill: '#ffffff40', fontSize: 11 }}
+                                axisLine={false}
+                                tickLine={false}
+                                tickFormatter={(d) => {
+                                    const date = new Date(d)
+                                    return `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`
+                                }}
+                            />
+                            <YAxis
+                                tick={{ fill: '#ffffff40', fontSize: 11 }}
+                                axisLine={false}
+                                tickLine={false}
+                                tickCount={5}
+                                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                            />
                             <Tooltip content={<CustomTooltip />} />
                             <Area type="monotone" dataKey="revenue" stroke="#E85D04" fill="url(#rev)" strokeWidth={2} />
                         </AreaChart>

@@ -20,7 +20,7 @@ const EMPTY_FORM = {
 
 function MenuRow({ item, onEdit, onDelete, onToggle }) {
     return (
-        <div className="flex items-center gap-4 p-4 border border-white/10 rounded-xl bg-white/2 hover:bg-white/4 transition-colors">
+        <div className="flex items-center gap-3 p-3 border border-white/10 rounded-xl bg-white/2 hover:bg-white/4 transition-colors">
             {item.images?.[0] ? (
                 <img src={item.images[0]} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
             ) : (
@@ -28,33 +28,31 @@ function MenuRow({ item, onEdit, onDelete, onToggle }) {
             )}
 
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                     <p className="text-white text-sm font-medium truncate">{item.name}</p>
-                    {item.isFeatured && <Star size={12} className="text-[#E85D04] shrink-0" fill="#E85D04" />}
+                    {item.isFeatured && <Star size={11} className="text-[#E85D04] shrink-0" fill="#E85D04" />}
                 </div>
-                <p className="text-white/30 text-xs truncate">{item.description}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-white/70 text-xs font-medium">{formatPrice(item.price)}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${item.isAvailable ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
+                        {item.isAvailable ? 'Available' : 'Hidden'}
+                    </span>
+                </div>
             </div>
 
-            <p className="text-white/70 text-sm font-medium shrink-0">{formatPrice(item.price)}</p>
-
-            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${item.isAvailable ? 'bg-green-400/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
-                {item.isAvailable ? 'Available' : 'Hidden'}
-            </span>
-
-            <div className="flex gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
                 <button
                     onClick={() => onToggle(item._id)}
-                    className="p-2.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                    title="Toggle availability"
+                    className="p-2 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
                 >
                     {item.isAvailable
                         ? <ToggleRight size={16} className="text-green-400" />
                         : <ToggleLeft size={16} />}
                 </button>
-                <button onClick={() => onEdit(item)} className="p-2.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                <button onClick={() => onEdit(item)} className="p-2 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
                     <Pencil size={14} />
                 </button>
-                <button onClick={() => onDelete(item._id)} className="p-2.5 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
+                <button onClick={() => onDelete(item._id)} className="p-2 rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
                     <Trash2 size={14} />
                 </button>
             </div>

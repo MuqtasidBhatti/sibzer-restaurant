@@ -6,8 +6,8 @@ import formatDate from '../../utils/formatDate'
 function RoleBadge({ role }) {
     return (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${role === 'admin'
-                ? 'bg-[#E85D04]/10 text-[#E85D04]'
-                : 'bg-white/5 text-white/40'
+            ? 'bg-[#E85D04]/10 text-[#E85D04]'
+            : 'bg-white/5 text-white/40'
             }`}>
             {role === 'admin' ? <Shield size={11} /> : <User size={11} />}
             {role}
@@ -89,14 +89,12 @@ export default function ManageUsers() {
                     { label: 'Admins', value: adminCount, icon: Shield },
                     { label: 'Customers', value: userCount, icon: User },
                 ].map(({ label, value, icon: Icon }) => (
-                    <div key={label} className="bg-white/2 border border-white/10 rounded-xl p-3 flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-[#E85D04]/10 flex items-center justify-center shrink-0">
-                            <Icon size={15} className="text-[#E85D04]" />
+                    <div key={label} className="bg-white/2 border border-white/10 rounded-xl p-3 flex flex-col items-center gap-1 text-center">
+                        <div className="w-7 h-7 rounded-lg bg-[#E85D04]/10 flex items-center justify-center">
+                            <Icon size={13} className="text-[#E85D04]" />
                         </div>
-                        <div>
-                            <p className="text-white font-semibold">{value}</p>
-                            <p className="text-white/30 text-xs">{label}</p>
-                        </div>
+                        <p className="text-white font-semibold text-sm">{value}</p>
+                        <p className="text-white/30 text-[10px] leading-tight">{label}</p>
                     </div>
                 ))}
             </div>
@@ -107,8 +105,8 @@ export default function ManageUsers() {
                         key={r}
                         onClick={() => setRoleFilter(r)}
                         className={`text-xs px-3 py-1.5 rounded-lg capitalize border transition-colors ${roleFilter === r
-                                ? 'bg-[#E85D04]/10 border-[#E85D04]/40 text-[#E85D04]'
-                                : 'border-white/10 text-white/40 hover:text-white'
+                            ? 'bg-[#E85D04]/10 border-[#E85D04]/40 text-[#E85D04]'
+                            : 'border-white/10 text-white/40 hover:text-white'
                             }`}
                     >
                         {r}

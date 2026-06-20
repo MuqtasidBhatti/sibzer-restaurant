@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
 import orderService from '../../services/orderService'
 import formatPrice from '../../utils/formatPrice'
-import formatDate from '../../utils/formatDate'
 import toast from 'react-hot-toast'
 
 const STATUSES = ['pending', 'confirmed', 'preparing', 'ready', 'out-for-delivery', 'completed', 'cancelled']
@@ -37,22 +36,33 @@ function OrderRow({ order, onStatusChange }) {
     return (
         <div className="border border-white/10 rounded-xl overflow-hidden bg-white/2">
             <div
-                className="flex flex-wrap items-center gap-4 p-4 cursor-pointer hover:bg-white/2 transition-colors"
+                className="flex flex-col gap-2 p-4 cursor-pointer hover:bg-white/2 transition-colors"
                 onClick={() => setExpanded(!expanded)}
             >
-                <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-medium">#{order._id.slice(-6).toUpperCase()}</p>
-                    <p className="text-white/30 text-xs">{formatDate(order.createdAt)}</p>
+                {/* Row 1: ID + status + chevron */}
+                <div className="flex items-center justify-between gap-2">
+                    <p className="text-white text-sm font-medium">
+                        #{order._id.slice(-6).toUpperCase()}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[order.status] || ''}`}>
+                            {order.status}
+                        </span>
+                        {expanded
+                            ? <ChevronUp size={14} className="text-white/30 shrink-0" />
+                            : <ChevronDown size={14} className="text-white/30 shrink-0" />}
+                    </div>
                 </div>
-                <div className="text-white/50 text-xs">
-                    <p>{order.user?.name || 'Guest'}</p>
-                    <p className="capitalize">{order.orderType}</p>
+
+                {/* Row 2: date + user + type + total */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-xs text-white/40">
+                        <p>{new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+                        <p>{order.user?.name || 'Guest'}</p>
+                        <p className="capitalize">{order.orderType}</p>
+                    </div>
+                    <p className="text-white font-medium text-sm shrink-0">{formatPrice(order.total)}</p>
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full border capitalize ${STATUS_COLORS[order.status] || ''}`}>
-                    {order.status}
-                </span>
-                <p className="text-white font-medium text-sm">{formatPrice(order.total)}</p>
-                {expanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
             </div>
 
             {expanded && (
@@ -61,7 +71,9 @@ function OrderRow({ order, onStatusChange }) {
                     <div className="space-y-1.5">
                         {order.items.map((item, i) => (
                             <div key={i} className="flex justify-between text-sm">
-                                <span className="text-white/60">{item.name} <span className="text-white/30">x{item.qty}</span></span>
+                                <span className="text-white/60">
+                                    {item.name} <span className="text-white/30">x{item.qty}</span>
+                                </span>
                                 <span className="text-white/50">{formatPrice(item.price * item.qty)}</span>
                             </div>
                         ))}
@@ -69,19 +81,35 @@ function OrderRow({ order, onStatusChange }) {
 
                     {/* Totals */}
                     <div className="text-xs text-white/40 space-y-1 border-t border-white/10 pt-3">
-                        <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(order.subtotal)}</span></div>
-                        {order.discount > 0 && <div className="flex justify-between text-green-400"><span>Discount</span><span>-{formatPrice(order.discount)}</span></div>}
-                        <div className="flex justify-between"><span>Tax</span><span>{formatPrice(order.tax)}</span></div>
+                        <div className="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>{formatPrice(order.subtotal)}</span>
+                        </div>
+                        {order.discount > 0 && (
+                            <div className="flex justify-between text-green-400">
+                                <span>Discount</span>
+                                <span>-{formatPrice(order.discount)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between">
+                            <span>Tax</span>
+                            <span>{formatPrice(order.tax)}</span>
+                        </div>
                         <div className="flex justify-between text-white font-medium text-sm pt-1 border-t border-white/10">
-                            <span>Total</span><span>{formatPrice(order.total)}</span>
+                            <span>Total</span>
+                            <span>{formatPrice(order.total)}</span>
                         </div>
                     </div>
 
                     {/* Meta */}
                     <div className="text-xs text-white/40 space-y-1">
                         <p>Payment: <span className="text-white/60 capitalize">{order.paymentMethod}</span></p>
-                        {order.deliveryAddress && <p>Address: <span className="text-white/60">{order.deliveryAddress}</span></p>}
-                        {order.note && <p>Note: <span className="text-white/60 italic">{order.note}</span></p>}
+                        {order.deliveryAddress && (
+                            <p>Address: <span className="text-white/60">{order.deliveryAddress}</span></p>
+                        )}
+                        {order.note && (
+                            <p>Note: <span className="text-white/60 italic">{order.note}</span></p>
+                        )}
                     </div>
 
                     {/* Status changer */}
@@ -118,10 +146,8 @@ export default function ManageOrders() {
         setLoading(true)
         try {
             const data = await orderService.adminGetAll()
-            console.log('orders response:', data)
             setOrders(Array.isArray(data) ? data : data.orders ?? [])
-        } catch (err) {
-            console.log('orders error:', err.response?.status, err.response?.data)
+        } catch {
             toast.error('Failed to load orders.')
         } finally {
             setLoading(false)
@@ -134,7 +160,7 @@ export default function ManageOrders() {
 
     return (
         <div className="p-6 lg:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
                         Orders
@@ -143,13 +169,12 @@ export default function ManageOrders() {
                 </div>
                 <button
                     onClick={load}
-                    className="flex items-center gap-2 border border-white/10 text-white/50 hover:text-white text-sm px-4 py-2.5 rounded-lg transition-colors"
+                    className="flex items-center gap-2 border border-white/10 text-white/50 hover:text-white text-sm px-4 py-2.5 rounded-lg transition-colors w-full sm:w-auto justify-center"
                 >
                     <RefreshCw size={14} /> Refresh
                 </button>
             </div>
 
-            {/* Filter tabs */}
             <div className="flex flex-wrap gap-2 mb-6">
                 {['all', ...STATUSES].map(s => (
                     <button
