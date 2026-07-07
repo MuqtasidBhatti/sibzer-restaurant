@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, Tag, CreditCard, ShoppingBag, ChevronRight, X, Bike, UtensilsCrossed, Store } from "lucide-react";
+import { MapPin, Tag, CreditCard, ShoppingBag, ChevronRight, X, Bike, UtensilsCrossed, Store, Smartphone } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "../../store/cartStore";
 import { useAuthStore } from "../../store/authStore";
@@ -10,7 +10,6 @@ import couponService from "../../services/couponService";
 import formatPrice from "../../utils/formatPrice";
 import { TAX_RATE } from "../../constants";
 
-// ── Constants ─────────────────────────────────────────────────
 const ORDER_TYPES = [
   { value: "delivery", label: "Delivery", icon: Bike },
   { value: "pickup", label: "Pickup", icon: Store },
@@ -24,7 +23,6 @@ const PAYMENT_METHODS = [
   { value: "easypaisa", label: "Easypaisa" },
 ];
 
-// ── Small reusable components ─────────────────────────────────
 const SectionLabel = ({ children }) => (
   <p className="text-xs tracking-[0.3em] uppercase text-white/30 mb-4">{children}</p>
 );
@@ -39,7 +37,6 @@ const Field = ({ label, children }) => (
 const inputCls =
   "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#E85D04]/60 transition-colors";
 
-// ── Main Component ────────────────────────────────────────────
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, getTotal, getCount, clearCart } = useCartStore();
@@ -50,21 +47,28 @@ export default function Checkout() {
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [couponCode, setCouponCode] = useState("");
-  const [coupon, setCoupon] = useState(null); // { code, discountAmount }
+  const [coupon, setCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [placing, setPlacing] = useState(false);
+
+  // Payment detail fields
+  const [paymentDetails, setPaymentDetails] = useState({
+    cardNumber: "",
+    cardExpiry: "",
+    cardCVV: "",
+    mobileNumber: "",
+  });
 
   const subtotal = getTotal();
   const tax = subtotal * TAX_RATE;
   const discount = coupon
-    ? coupon.discountType === 'percentage'
+    ? coupon.discountType === "percentage"
       ? (subtotal * coupon.discountValue) / 100
       : coupon.discountValue
     : 0;
   const total = subtotal + tax - discount;
   const itemCount = getCount();
 
-  // ── Coupon ────────────────────────────────────────────────
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
@@ -73,8 +77,8 @@ export default function Checkout() {
       if (data.valid) {
         setCoupon({
           code: couponCode.toUpperCase(),
-          discountType: data.coupon.discountType,   // 'percentage' or 'fixed'
-          discountValue: data.coupon.discountValue, // 30 (for 30%)
+          discountType: data.coupon.discountType,
+          discountValue: data.coupon.discountValue,
         });
         toast.success(`Coupon applied — ${data.coupon.discountValue}% off`);
       } else {
@@ -92,11 +96,30 @@ export default function Checkout() {
     setCouponCode("");
   };
 
-  // ── Place Order ───────────────────────────────────────────
+  const handlePaymentMethodChange = (value) => {
+    setPaymentMethod(value);
+    setPaymentDetails({ cardNumber: "", cardExpiry: "", cardCVV: "", mobileNumber: "" });
+  };
+
   const handlePlaceOrder = async () => {
     if (items.length === 0) return toast.error("Your cart is empty.");
     if (orderType === "delivery" && !address.trim()) {
       return toast.error("Please enter a delivery address.");
+    }
+
+    // Validate card details
+    if (paymentMethod === "card") {
+      const raw = paymentDetails.cardNumber.replace(/\s/g, "");
+      if (raw.length < 16) return toast.error("Enter a valid 16-digit card number.");
+      if (paymentDetails.cardExpiry.length < 5) return toast.error("Enter a valid expiry date (MM/YY).");
+      if (paymentDetails.cardCVV.length < 3) return toast.error("Enter a valid CVV.");
+    }
+
+    // Validate mobile number for JazzCash / Easypaisa
+    if (paymentMethod === "jazzcash" || paymentMethod === "easypaisa") {
+      if (paymentDetails.mobileNumber.length < 11) {
+        return toast.error("Enter a valid 11-digit mobile number.");
+      }
     }
 
     setPlacing(true);
@@ -115,10 +138,10 @@ export default function Checkout() {
         note: note.trim() || undefined,
       };
 
-      const data = await orderService.placeOrder(payload);
+      await orderService.placeOrder(payload);
       clearCart();
       toast.success("Order placed successfully!");
-      navigate(`/orders`);
+      navigate("/orders");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to place order.");
     } finally {
@@ -126,7 +149,6 @@ export default function Checkout() {
     }
   };
 
-  // ── Empty cart state ──────────────────────────────────────
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-6">
@@ -138,10 +160,7 @@ export default function Checkout() {
           <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-5">
             <ShoppingBag size={24} className="text-white/20" />
           </div>
-          <h2
-            className="text-2xl text-white mb-2"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
+          <h2 className="text-2xl text-white mb-2" style={{ fontFamily: "Playfair Display, serif" }}>
             Nothing to checkout
           </h2>
           <p className="text-white/30 text-sm mb-8">Add items from the menu first.</p>
@@ -160,7 +179,6 @@ export default function Checkout() {
     <div className="min-h-screen bg-[#0A0A0A] text-white pt-20">
       <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12">
 
-        {/* ── Page header ──────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -168,22 +186,19 @@ export default function Checkout() {
           className="mb-10"
         >
           <p className="text-xs tracking-[0.4em] uppercase text-[#E85D04] mb-2">Almost there</p>
-          <h1
-            className="text-3xl lg:text-4xl font-bold text-white"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
+          <h1 className="text-3xl lg:text-4xl font-bold text-white" style={{ fontFamily: "Playfair Display, serif" }}>
             Complete Your Order
           </h1>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-          {/* ── Left — form (3 cols) ──────────────────────── */}
+          {/* Left form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="lg:col-span-3 space-y-8"
+            className="lg:col-span-3 space-y-6"
           >
 
             {/* Order Type */}
@@ -194,10 +209,11 @@ export default function Checkout() {
                   <button
                     key={value}
                     onClick={() => setOrderType(value)}
-                    className={`flex flex-col items-center gap-2 py-4 rounded-xl border text-sm transition-colors ${orderType === value
-                      ? "border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]"
-                      : "border-white/10 text-white/40 hover:text-white hover:border-white/20"
-                      }`}
+                    className={`flex flex-col items-center gap-2 py-4 rounded-xl border text-sm transition-colors ${
+                      orderType === value
+                        ? "border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]"
+                        : "border-white/10 text-white/40 hover:text-white hover:border-white/20"
+                    }`}
                   >
                     <Icon size={18} />
                     {label}
@@ -206,7 +222,7 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Delivery Address — only for delivery */}
+            {/* Delivery Address */}
             {orderType === "delivery" && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -237,23 +253,120 @@ export default function Checkout() {
                 {PAYMENT_METHODS.map(({ value, label }) => (
                   <button
                     key={value}
-                    onClick={() => setPaymentMethod(value)}
-                    className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition-colors ${paymentMethod === value
-                      ? "border-[#E85D04] bg-[#E85D04]/10 text-white"
-                      : "border-white/10 text-white/50 hover:text-white hover:border-white/20"
-                      }`}
+                    onClick={() => handlePaymentMethodChange(value)}
+                    className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition-colors ${
+                      paymentMethod === value
+                        ? "border-[#E85D04] bg-[#E85D04]/10 text-white"
+                        : "border-white/10 text-white/50 hover:text-white hover:border-white/20"
+                    }`}
                   >
                     <span className="flex items-center gap-3">
                       <CreditCard size={15} className={paymentMethod === value ? "text-[#E85D04]" : "text-white/25"} />
                       {label}
                     </span>
-                    {paymentMethod === value && (
-                      <span className="w-2 h-2 rounded-full bg-[#E85D04]" />
-                    )}
+                    {paymentMethod === value && <span className="w-2 h-2 rounded-full bg-[#E85D04]" />}
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Card Details */}
+            {paymentMethod === "card" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-white/3 border border-white/8 rounded-2xl p-6"
+              >
+                <SectionLabel>Card Details</SectionLabel>
+                <div className="space-y-4">
+                  <Field label="Card Number">
+                    <div className="relative">
+                      <CreditCard size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={19}
+                        value={paymentDetails.cardNumber}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 16);
+                          const formatted = val.match(/.{1,4}/g)?.join(" ") || val;
+                          setPaymentDetails((p) => ({ ...p, cardNumber: formatted }));
+                        }}
+                        placeholder="1234 5678 9012 3456"
+                        className={`${inputCls} pl-11 tracking-widest`}
+                      />
+                    </div>
+                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Expiry (MM/YY)">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
+                        value={paymentDetails.cardExpiry}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                          const formatted = val.length > 2 ? `${val.slice(0, 2)}/${val.slice(2)}` : val;
+                          setPaymentDetails((p) => ({ ...p, cardExpiry: formatted }));
+                        }}
+                        placeholder="MM/YY"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="CVV">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={4}
+                        value={paymentDetails.cardCVV}
+                        onChange={(e) =>
+                          setPaymentDetails((p) => ({
+                            ...p,
+                            cardCVV: e.target.value.replace(/\D/g, "").slice(0, 4),
+                          }))
+                        }
+                        placeholder="•••"
+                        className={inputCls}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* JazzCash / Easypaisa Mobile Number */}
+            {(paymentMethod === "jazzcash" || paymentMethod === "easypaisa") && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-white/3 border border-white/8 rounded-2xl p-6"
+              >
+                <SectionLabel>
+                  {paymentMethod === "jazzcash" ? "JazzCash" : "Easypaisa"} Number
+                </SectionLabel>
+                <Field label="Mobile Number">
+                  <div className="relative">
+                    <Smartphone size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={11}
+                      value={paymentDetails.mobileNumber}
+                      onChange={(e) =>
+                        setPaymentDetails((p) => ({
+                          ...p,
+                          mobileNumber: e.target.value.replace(/\D/g, "").slice(0, 11),
+                        }))
+                      }
+                      placeholder="03001234567"
+                      className={`${inputCls} pl-11`}
+                    />
+                  </div>
+                </Field>
+              </motion.div>
+            )}
 
             {/* Coupon */}
             <div className="bg-white/3 border border-white/8 rounded-2xl p-6">
@@ -263,8 +376,10 @@ export default function Checkout() {
                   <span className="flex items-center gap-2 text-green-400 text-sm font-mono font-semibold">
                     <Tag size={14} />
                     {coupon.code}
-                    <span className="text-green-400/60 font-normal">
-                      — {formatPrice(coupon.discountAmount)} off
+                    <span className="text-green-400/60 font-normal text-xs">
+                      {coupon.discountType === "percentage"
+                        ? `${coupon.discountValue}% off`
+                        : `${formatPrice(coupon.discountValue)} off`}
                     </span>
                   </span>
                   <button onClick={handleRemoveCoupon} className="text-white/30 hover:text-red-400 transition-colors">
@@ -287,7 +402,7 @@ export default function Checkout() {
                   <button
                     onClick={handleApplyCoupon}
                     disabled={couponLoading || !couponCode.trim()}
-                    className="px-5 py-3 bg-white/8 hover:bg-white/12 border border-white/10 text-white/60 hover:text-white text-sm rounded-xl transition-colors disabled:opacity-40"
+                    className="px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm rounded-xl transition-colors disabled:opacity-40"
                   >
                     {couponLoading ? "..." : "Apply"}
                   </button>
@@ -295,7 +410,7 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* Order Note */}
+            {/* Note */}
             <div className="bg-white/3 border border-white/8 rounded-2xl p-6">
               <SectionLabel>Special Instructions</SectionLabel>
               <Field label="Note (optional)">
@@ -310,7 +425,7 @@ export default function Checkout() {
             </div>
           </motion.div>
 
-          {/* ── Right — order summary (2 cols) ───────────── */}
+          {/* Right summary */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -320,7 +435,6 @@ export default function Checkout() {
             <div className="bg-white/3 border border-white/8 rounded-2xl p-6 sticky top-28">
               <SectionLabel>Your Order</SectionLabel>
 
-              {/* Items */}
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
                   <div key={item._id} className="flex items-center gap-3">
@@ -342,10 +456,8 @@ export default function Checkout() {
                 ))}
               </div>
 
-              {/* Divider */}
               <div className="h-px bg-white/8 mb-5" />
 
-              {/* Price breakdown */}
               <div className="space-y-3 text-sm mb-6">
                 <div className="flex justify-between text-white/50">
                   <span>Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})</span>
@@ -360,15 +472,12 @@ export default function Checkout() {
                     <span className="flex items-center gap-1.5">
                       <Tag size={12} /> {coupon.code}
                     </span>
-                    <span className="tabular-nums">− {formatPrice(discount)}</span>
+                    <span className="tabular-nums">- {formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="h-px bg-white/8" />
                 <div className="flex justify-between items-center">
-                  <span
-                    className="text-white font-semibold text-base"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
+                  <span className="text-white font-semibold text-base" style={{ fontFamily: "Playfair Display, serif" }}>
                     Total
                   </span>
                   <span className="text-[#E85D04] font-bold text-lg tabular-nums">
@@ -377,7 +486,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Place order button */}
               <button
                 onClick={handlePlaceOrder}
                 disabled={placing}
