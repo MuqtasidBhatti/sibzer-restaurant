@@ -33,6 +33,7 @@ function OrderRow({ order, onStatusChange }) {
         }
     }
 
+
     return (
         <div className="border border-white/10 rounded-xl overflow-hidden bg-white/2">
             <div
@@ -142,19 +143,27 @@ export default function ManageOrders() {
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('all')
 
-    const load = async () => {
-        setLoading(true)
+    const load = async (silent = false) => {
+        if (!silent) setLoading(true)
         try {
             const data = await orderService.adminGetAll()
             setOrders(Array.isArray(data) ? data : data.orders ?? [])
         } catch {
-            toast.error('Failed to load orders.')
+            if (!silent) toast.error('Failed to load orders.')
         } finally {
-            setLoading(false)
+            if (!silent) setLoading(false)
         }
     }
 
-    useEffect(() => { load() }, [])
+    useEffect(() => {
+        load()
+
+        const interval = setInterval(() => {
+            load(true) // silent background refresh, no skeleton flash
+        }, 5000)
+
+        return () => clearInterval(interval)
+    }, [])
 
     const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
 

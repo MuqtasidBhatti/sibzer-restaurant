@@ -122,18 +122,27 @@ export default function OrderHistory() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    useEffect(() => {
-        const fetch = async () => {
-            try {
-                const data = await orderService.getMyOrders()
-                setOrders(Array.isArray(data) ? data : data.orders ?? [])
-            } catch {
-                setError('Failed to load orders.')
-            } finally {
-                setLoading(false)
-            }
+    const fetchOrders = async (silent = false) => {
+        if (!silent) setLoading(true)
+        try {
+            const data = await orderService.getMyOrders()
+            setOrders(Array.isArray(data) ? data : data.orders ?? [])
+            setError(null)
+        } catch {
+            if (!silent) setError('Failed to load orders.')
+        } finally {
+            if (!silent) setLoading(false)
         }
-        fetch()
+    }
+
+    useEffect(() => {
+        fetchOrders()
+
+        const interval = setInterval(() => {
+            fetchOrders(true)
+        }, 5000)
+
+        return () => clearInterval(interval)
     }, [])
 
     return (
